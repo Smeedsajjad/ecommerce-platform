@@ -14,6 +14,7 @@ dependencies:
 
   cupertino_icons: ^1.0.8
   google_fonts: ^6.3.2
+  intl_phone_number_input: ^0.7.5
 
 dev_dependencies:
   flutter_test:
@@ -25,26 +26,24 @@ dev_dependencies:
 # ----- Flutter Native Splash Configration -----
 flutter_native_splash:
   color: "#ffffff"
-  image: assets/splash_logo/splash_logo.png
+  image: assets/images/splash_logo/splash_logo.png
   android: true
   ios: true
 
   android_12:
     color: "#ffffff"
-    image: assets/splash_logo/splash_logo.png
+    image: assets/images/splash_logo/splash_logo.png
 
 # ----- Flutter Launch Icons Configration -----
 
 flutter_launcher_icons:
   android: true
   ios: true
-  image_path: assets/launch_icon/launch_logo.png
+  image_path: assets/images/launch_icon/launch_logo.png
   adaptive_icon_background: "#FFFFFF"
 
 flutter:
   assets:
-    - assets/logo/
-    - assets/splash_logo/
-    - assets/launch_icon/
+    - assets/images/
 
   uses-material-design: true
