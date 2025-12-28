@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:ecommerence/utils/constants/sizes.dart';
+import '../constants/sizes.dart';
 
 class AppSpacingStyle {
   static const EdgeInsetsGeometry paddingWithAppBarHeight =

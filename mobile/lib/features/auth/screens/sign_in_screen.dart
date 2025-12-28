@@ -1,8 +1,8 @@
-import 'package:ecommerence/utils/constants/colors.dart';
-import 'package:ecommerence/utils/constants/image_strings.dart';
-import 'package:ecommerence/utils/constants/sizes.dart';
-import 'package:ecommerence/utils/styles/spacing_styles.dart';
 import 'package:flutter/material.dart';
+import 'package:ecommerence/core/utils/constants/colors.dart';
+import 'package:ecommerence/core/utils/constants/image_strings.dart';
+import 'package:ecommerence/core/utils/constants/sizes.dart';
+import 'package:ecommerence/core/utils/styles/spacing_styles.dart';
 
 class SignInScreen extends StatefulWidget {
   const SignInScreen({super.key});

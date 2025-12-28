@@ -1,5 +1,5 @@
-import 'package:ecommerence/utils/constants/colors.dart';
-import 'package:ecommerence/utils/theme/widget_themes/checkbox_theme.dart';
+import '../constants/colors.dart';
+import 'widget_themes/checkbox_theme.dart';
 import 'package:flutter/material.dart';
 
 import 'widget_themes/appbar_theme.dart';

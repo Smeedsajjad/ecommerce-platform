@@ -1,5 +1,5 @@
-import 'package:ecommerence/features/auth/views/sign_in_screen.dart';
-import 'package:ecommerence/utils/theme/theme.dart';
+import 'package:ecommerence/features/auth/screens/login_screen.dart';
+import 'package:ecommerence/core/utils/theme/theme.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -14,7 +14,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: AppTheme.theme,
-      home: SignInScreen(),
+      home: LoginScreen(),
     );
   }
 }
