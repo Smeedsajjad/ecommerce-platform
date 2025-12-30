@@ -1,163 +1,111 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:ecommerence/core/utils/constants/colors.dart';
 import 'package:ecommerence/core/utils/constants/image_strings.dart';
-import 'package:ecommerence/core/utils/constants/sizes.dart';
-import 'package:ecommerence/core/utils/styles/spacing_styles.dart';
+import 'package:ecommerence/features/auth/services/auth_service.dart';
 
-class SignInScreen extends StatefulWidget {
+class SignInScreen extends ConsumerStatefulWidget {
   const SignInScreen({super.key});
 
   @override
-  State<SignInScreen> createState() => _SignInScreenState();
+  ConsumerState<SignInScreen> createState() => _SignInScreenState();
 }
 
-class _SignInScreenState extends State<SignInScreen> {
+class _SignInScreenState extends ConsumerState<SignInScreen> {
   final _formKey = GlobalKey<FormState>();
+  final _firstNameController = TextEditingController();
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
   bool _isObscured = true;
   bool _policyCheck = false;
+
+  @override
+  void dispose() {
+    _firstNameController.dispose();
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _handleSignup() async {
+    if (!_formKey.currentState!.validate()) return;
+    if (!_policyCheck) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please accept the privacy policy')),
+      );
+      return;
+    }
+
+    await ref
+        .read(authServiceProvider.notifier)
+        .signup(
+          _firstNameController.text.trim(),
+          _emailController.text.trim(),
+          _passwordController.text.trim(),
+        );
+  }
 
   String? nameValidator(String? value) {
     if (value == null || value.trim().isEmpty) {
       return 'This field is required';
     }
-    if (value.trim().length < 2) {
-      return 'Must be at least 2 characters';
-    }
-    if (!RegExp(r'^[a-zA-Z ]+$').hasMatch(value.trim())) {
-      return 'Only letters are allowed';
-    }
-    return null;
-  }
-
-  String? usernameValidator(String? value) {
-    if (value == null || value.trim().isEmpty) {
-      return 'Username is required';
-    }
-    if (!RegExp(r'^[a-zA-Z][a-zA-Z0-9_]{2,19}$').hasMatch(value.trim())) {
-      return 'Invalid username';
-    }
-    return null;
-  }
-
-  String? passwordValidator(String? value) {
-    if (value == null || value.isEmpty) {
-      return 'Password is required';
-    }
-
-    if (value.length < 8) {
-      return 'Must be at least 8 characters long';
-    }
-
-    if (!RegExp(r'[A-Z]').hasMatch(value)) {
-      return 'Must contain at least one uppercase letter';
-    }
-
-    if (!RegExp(r'[a-z]').hasMatch(value)) {
-      return 'Must contain at least one lowercase letter';
-    }
-
-    if (!RegExp(r'[0-9]').hasMatch(value)) {
-      return 'Must contain at least one number';
-    }
-
-    if (!RegExp(r'[!@#\$&*~%^()_+\-=<>?/{}|[\]]').hasMatch(value)) {
-      return 'Must contain at least one special character';
-    }
-
     return null;
   }
 
   @override
   Widget build(BuildContext context) {
+    final authState = ref.watch(authServiceProvider);
+    final isLoading = authState.status == AuthStatus.loading;
+
+    ref.listen(authServiceProvider, (previous, next) {
+      if (next.status == AuthStatus.error && next.errorMessage != null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(next.errorMessage!),
+            backgroundColor: Colors.red,
+          ),
+        );
+        // Clear error after showing it
+        ref.read(authServiceProvider.notifier).clearError();
+      }
+    });
+
     return Scaffold(
+      appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => context.pop(),
+        ),
+      ),
       body: SingleChildScrollView(
         child: Padding(
-          padding: AppSpacingStyle.paddingWithAppBarHeight,
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
                 '''Let's create your account''',
-                style: Theme.of(context).textTheme.headlineLarge!.copyWith(
+                style: Theme.of(context).textTheme.headlineMedium!.copyWith(
                   fontWeight: FontWeight.w700,
                 ),
               ),
 
-              SizedBox(height: AppSizes.xl),
+              const SizedBox(height: 32),
 
               Form(
                 key: _formKey,
                 child: Column(
                   children: [
-                    Row(
-                      children: [
-                        Expanded(
-                          child: TextFormField(
-                            decoration: InputDecoration(
-                              hintText: 'First Name',
-                              hintStyle: TextStyle(
-                                fontWeight: FontWeight.w600,
-                                color: Colors.black,
-                              ),
-                              prefixIcon: Icon(Icons.person_outline_outlined),
-                              contentPadding: const EdgeInsets.all(16),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide(
-                                  color: Colors.grey.shade200,
-                                ),
-                              ),
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide(
-                                  color: Colors.grey.shade300,
-                                ),
-                              ),
-                            ),
-                            validator: nameValidator,
-                          ),
-                        ),
-
-                        const SizedBox(width: 16),
-
-                        Expanded(
-                          child: TextFormField(
-                            decoration: InputDecoration(
-                              hintText: 'Last Name',
-                              hintStyle: TextStyle(
-                                fontWeight: FontWeight.w600,
-                                color: Colors.black,
-                              ),
-                              prefixIcon: Icon(Icons.person_outline_outlined),
-                              contentPadding: const EdgeInsets.all(16),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide(
-                                  color: Colors.grey.shade200,
-                                ),
-                              ),
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide(
-                                  color: Colors.grey.shade300,
-                                ),
-                              ),
-                            ),
-                            validator: nameValidator,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-
                     TextFormField(
+                      controller: _firstNameController,
                       decoration: InputDecoration(
-                        hintText: 'Username',
-                        hintStyle: TextStyle(
+                        hintText: 'Full Name',
+                        hintStyle: const TextStyle(
                           fontWeight: FontWeight.w600,
                           color: Colors.black,
                         ),
-                        prefixIcon: Icon(Icons.person_outline_outlined),
+                        prefixIcon: const Icon(Icons.person_outline_outlined),
                         contentPadding: const EdgeInsets.all(16),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
@@ -168,17 +116,18 @@ class _SignInScreenState extends State<SignInScreen> {
                           borderSide: BorderSide(color: Colors.grey.shade300),
                         ),
                       ),
-                      validator: usernameValidator,
+                      validator: nameValidator,
                     ),
                     const SizedBox(height: 16),
                     TextFormField(
+                      controller: _emailController,
                       decoration: InputDecoration(
                         hintText: 'Email',
-                        hintStyle: TextStyle(
+                        hintStyle: const TextStyle(
                           fontWeight: FontWeight.w600,
                           color: Colors.black,
                         ),
-                        prefixIcon: Icon(Icons.email_outlined),
+                        prefixIcon: const Icon(Icons.email_outlined),
                         contentPadding: const EdgeInsets.all(16),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
@@ -201,15 +150,16 @@ class _SignInScreenState extends State<SignInScreen> {
                     const SizedBox(height: 16),
 
                     TextFormField(
+                      controller: _passwordController,
                       keyboardType: TextInputType.text,
                       obscureText: _isObscured,
                       decoration: InputDecoration(
                         hintText: 'Password',
-                        hintStyle: TextStyle(
+                        hintStyle: const TextStyle(
                           fontWeight: FontWeight.w600,
                           color: Colors.black,
                         ),
-                        prefixIcon: Icon(Icons.password),
+                        prefixIcon: const Icon(Icons.password),
                         suffixIcon: IconButton(
                           icon: Icon(
                             _isObscured
@@ -233,7 +183,12 @@ class _SignInScreenState extends State<SignInScreen> {
                           borderSide: BorderSide(color: Colors.grey.shade300),
                         ),
                       ),
-                      validator: passwordValidator,
+                      validator: (value) {
+                        if (value == null || value.length < 6) {
+                          return 'Password must be at least 6 characters';
+                        }
+                        return null;
+                      },
                     ),
 
                     const SizedBox(height: 24),
@@ -254,7 +209,7 @@ class _SignInScreenState extends State<SignInScreen> {
                           ),
                         ),
 
-                        SizedBox(width: AppSizes.spaceBtwItems),
+                        const SizedBox(width: 16),
 
                         Expanded(
                           child: GestureDetector(
@@ -311,9 +266,7 @@ class _SignInScreenState extends State<SignInScreen> {
                       width: double.infinity,
                       height: 55,
                       child: ElevatedButton(
-                        onPressed: () {
-                          if (_formKey.currentState!.validate()) {}
-                        },
+                        onPressed: isLoading ? null : _handleSignup,
                         style: ElevatedButton.styleFrom(
                           side: BorderSide.none,
                           backgroundColor: AppColors.primary,
@@ -322,7 +275,11 @@ class _SignInScreenState extends State<SignInScreen> {
                             borderRadius: BorderRadius.circular(12),
                           ),
                         ),
-                        child: const Text('Sign in'),
+                        child: isLoading
+                            ? const CircularProgressIndicator(
+                                color: Colors.white,
+                              )
+                            : const Text('Create Account'),
                       ),
                     ),
 
@@ -337,38 +294,14 @@ class _SignInScreenState extends State<SignInScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Container(
-                          padding: EdgeInsets.all(2),
-                          decoration: BoxDecoration(
-                            border: Border.all(color: Colors.grey.shade300),
-                            borderRadius: BorderRadius.circular(100),
-                          ),
-
-                          child: IconButton(
-                            onPressed: () {},
-                            icon: const Image(
-                              image: AssetImage(AppImageStrings.googleLogo),
-                              width: AppSizes.iconMd,
-                              height: AppSizes.iconMd,
-                            ),
-                          ),
+                        _socialButton(
+                          image: AppImageStrings.googleLogo,
+                          onPressed: () {},
                         ),
-                        const SizedBox(width: AppSizes.spaceBtwItems),
-                        Container(
-                          padding: EdgeInsets.all(2),
-                          decoration: BoxDecoration(
-                            border: Border.all(color: Colors.grey.shade300),
-                            borderRadius: BorderRadius.circular(100),
-                          ),
-
-                          child: IconButton(
-                            onPressed: () {},
-                            icon: const Image(
-                              image: AssetImage(AppImageStrings.facebookLogo),
-                              width: AppSizes.iconMd,
-                              height: AppSizes.iconMd,
-                            ),
-                          ),
+                        const SizedBox(width: 16),
+                        _socialButton(
+                          image: AppImageStrings.facebookLogo,
+                          onPressed: () {},
                         ),
                       ],
                     ),
@@ -378,6 +311,23 @@ class _SignInScreenState extends State<SignInScreen> {
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _socialButton({
+    required String image,
+    required VoidCallback onPressed,
+  }) {
+    return Container(
+      padding: const EdgeInsets.all(2),
+      decoration: BoxDecoration(
+        border: Border.all(color: Colors.grey.shade300),
+        borderRadius: BorderRadius.circular(100),
+      ),
+      child: IconButton(
+        onPressed: onPressed,
+        icon: Image(image: AssetImage(image), width: 24, height: 24),
       ),
     );
   }

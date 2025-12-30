@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\ApiResponse;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\UserAuthResource;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -11,7 +12,7 @@ use Illuminate\Support\Facades\Auth;
 class UserAuthController extends Controller
 {
     use ApiResponse;
-    
+
 
     public function register(Request $request)
     {
@@ -28,8 +29,7 @@ class UserAuthController extends Controller
         ]);
 
         $token = auth('api')->login($user);
-        $result = $this->respondWithToken($token);
-        return $this->success($result);
+        return $this->success($this->respondWithToken($token, $user), 'User registered successfully');
     }
 
     public function login()
@@ -37,11 +37,11 @@ class UserAuthController extends Controller
         $credentials = request(['email', 'password']);
 
         if (!$token = auth('api')->attempt($credentials)) {
-            return response()->json(['error' => 'Unauthorized'], 401);
+            return $this->unauthorized('Invalid credentials');
         }
 
-        $return = $this->respondWithToken($token);
-        return $this->success($return);
+        $user = auth('api')->user();
+        return $this->success($this->respondWithToken($token, $user), 'User logged in successfully');
     }
 
     /**
@@ -52,7 +52,7 @@ class UserAuthController extends Controller
     public function me()
     {
         return $this->success(
-            Auth::user(),
+            new UserAuthResource(Auth::user()),
             'Authenticated user data'
         );
     }
@@ -76,7 +76,10 @@ class UserAuthController extends Controller
      */
     public function refresh()
     {
-        return $this->respondWithToken(auth('api')->refresh());
+        return $this->success(
+            $this->respondWithToken(auth('api')->refresh(), auth('api')->user()),
+            'Token refreshed successfully'
+        );
     }
 
     /**
@@ -86,12 +89,18 @@ class UserAuthController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    protected function respondWithToken($token)
+    protected function respondWithToken($token, $user = null)
     {
-        return response()->json([
+        $data = [
             'access_token' => $token,
             'token_type' => 'bearer',
-            'expires_in' => auth()->factory()->getTTL() * 60
-        ]);
+            'expires_in' => auth('api')->factory()->getTTL() * 60
+        ];
+
+        if ($user) {
+            $data['user'] = new UserAuthResource($user);
+        }
+
+        return $data;
     }
 }

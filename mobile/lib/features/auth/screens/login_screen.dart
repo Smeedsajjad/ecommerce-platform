@@ -2,22 +2,59 @@ import 'package:ecommerence/core/utils/constants/colors.dart';
 import 'package:ecommerence/core/utils/constants/image_strings.dart';
 import 'package:ecommerence/core/utils/constants/sizes.dart';
 import 'package:ecommerence/core/utils/styles/spacing_styles.dart';
+import 'package:ecommerence/features/auth/services/auth_service.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
-class LoginScreen extends StatefulWidget {
+class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
 
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  ConsumerState<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class _LoginScreenState extends ConsumerState<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
   bool _isObscured = true;
   bool _rememberMe = false;
 
   @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _handleLogin() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    await ref
+        .read(authServiceProvider.notifier)
+        .login(_emailController.text.trim(), _passwordController.text.trim());
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final authState = ref.watch(authServiceProvider);
+    final isLoading = authState.status == AuthStatus.loading;
+
+    // Listen for error messages
+    ref.listen(authServiceProvider, (previous, next) {
+      if (next.status == AuthStatus.error && next.errorMessage != null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(next.errorMessage!),
+            backgroundColor: Colors.red,
+          ),
+        );
+        // Clear error after showing it
+        ref.read(authServiceProvider.notifier).clearError();
+      }
+    });
+
     return Scaffold(
       body: SingleChildScrollView(
         child: Padding(
@@ -25,7 +62,7 @@ class _LoginScreenState extends State<LoginScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Image.asset(AppImageStrings.appLogo, height: 150),
+              Center(child: Image.asset(AppImageStrings.appLogo, height: 150)),
 
               Text(
                 'Welcome back,',
@@ -51,13 +88,14 @@ class _LoginScreenState extends State<LoginScreen> {
                 child: Column(
                   children: [
                     TextFormField(
+                      controller: _emailController,
                       decoration: InputDecoration(
                         hintText: 'Email',
-                        hintStyle: TextStyle(
+                        hintStyle: const TextStyle(
                           fontWeight: FontWeight.w600,
                           color: Colors.black,
                         ),
-                        prefixIcon: Icon(Icons.email_outlined),
+                        prefixIcon: const Icon(Icons.email_outlined),
                         contentPadding: const EdgeInsets.all(16),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
@@ -80,15 +118,16 @@ class _LoginScreenState extends State<LoginScreen> {
                     const SizedBox(height: 16),
 
                     TextFormField(
+                      controller: _passwordController,
                       keyboardType: TextInputType.text,
                       obscureText: _isObscured,
                       decoration: InputDecoration(
                         hintText: 'Password',
-                        hintStyle: TextStyle(
+                        hintStyle: const TextStyle(
                           fontWeight: FontWeight.w600,
                           color: Colors.black,
                         ),
-                        prefixIcon: Icon(Icons.password),
+                        prefixIcon: const Icon(Icons.password),
                         suffixIcon: IconButton(
                           icon: Icon(
                             _isObscured
@@ -112,23 +151,31 @@ class _LoginScreenState extends State<LoginScreen> {
                           borderSide: BorderSide(color: Colors.grey.shade300),
                         ),
                       ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Password is required';
+                        }
+                        return null;
+                      },
                     ),
 
                     const SizedBox(height: 16),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Expanded(
-                          child: CheckboxListTile(
-                            title: const Text('Remember me'),
-                            value: _rememberMe,
-                            activeColor: AppColors.primary,
-                            onChanged: (val) {
-                              setState(() {
-                                _rememberMe = val ?? false;
-                              });
-                            },
-                          ),
+                        Row(
+                          children: [
+                            Checkbox(
+                              value: _rememberMe,
+                              activeColor: AppColors.primary,
+                              onChanged: (val) {
+                                setState(() {
+                                  _rememberMe = val ?? false;
+                                });
+                              },
+                            ),
+                            const Text('Remember me'),
+                          ],
                         ),
                         TextButton(
                           onPressed: () {},
@@ -141,9 +188,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       width: double.infinity,
                       height: 55,
                       child: ElevatedButton(
-                        onPressed: () {
-                          if (_formKey.currentState!.validate()) {}
-                        },
+                        onPressed: isLoading ? null : _handleLogin,
                         style: ElevatedButton.styleFrom(
                           side: BorderSide.none,
                           backgroundColor: AppColors.primary,
@@ -152,7 +197,11 @@ class _LoginScreenState extends State<LoginScreen> {
                             borderRadius: BorderRadius.circular(12),
                           ),
                         ),
-                        child: const Text('Sign in'),
+                        child: isLoading
+                            ? const CircularProgressIndicator(
+                                color: Colors.white,
+                              )
+                            : const Text('Sign in'),
                       ),
                     ),
                     const SizedBox(height: 16),
@@ -160,9 +209,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       width: double.infinity,
                       height: 55,
                       child: ElevatedButton(
-                        onPressed: () {
-                          if (_formKey.currentState!.validate()) {}
-                        },
+                        onPressed: () => context.push('/signup'),
                         style: ElevatedButton.styleFrom(
                           side: BorderSide(
                             width: 1,
@@ -194,38 +241,14 @@ class _LoginScreenState extends State<LoginScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Container(
-                          padding: EdgeInsets.all(2),
-                          decoration: BoxDecoration(
-                            border: Border.all(color: Colors.grey.shade300),
-                            borderRadius: BorderRadius.circular(100),
-                          ),
-
-                          child: IconButton(
-                            onPressed: () {},
-                            icon: const Image(
-                              image: AssetImage(AppImageStrings.googleLogo),
-                              width: AppSizes.iconMd,
-                              height: AppSizes.iconMd,
-                            ),
-                          ),
+                        _socialButton(
+                          image: AppImageStrings.googleLogo,
+                          onPressed: () {},
                         ),
                         const SizedBox(width: AppSizes.spaceBtwItems),
-                        Container(
-                          padding: EdgeInsets.all(2),
-                          decoration: BoxDecoration(
-                            border: Border.all(color: Colors.grey.shade300),
-                            borderRadius: BorderRadius.circular(100),
-                          ),
-
-                          child: IconButton(
-                            onPressed: () {},
-                            icon: const Image(
-                              image: AssetImage(AppImageStrings.facebookLogo),
-                              width: AppSizes.iconMd,
-                              height: AppSizes.iconMd,
-                            ),
-                          ),
+                        _socialButton(
+                          image: AppImageStrings.facebookLogo,
+                          onPressed: () {},
                         ),
                       ],
                     ),
@@ -234,6 +257,27 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _socialButton({
+    required String image,
+    required VoidCallback onPressed,
+  }) {
+    return Container(
+      padding: const EdgeInsets.all(2),
+      decoration: BoxDecoration(
+        border: Border.all(color: Colors.grey.shade300),
+        borderRadius: BorderRadius.circular(100),
+      ),
+      child: IconButton(
+        onPressed: onPressed,
+        icon: Image(
+          image: AssetImage(image),
+          width: AppSizes.iconMd,
+          height: AppSizes.iconMd,
         ),
       ),
     );
