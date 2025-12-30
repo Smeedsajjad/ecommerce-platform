@@ -20,6 +20,7 @@ class User extends Authenticatable implements JWTSubject
      */
     protected $fillable = [
         'name',
+        'is_admin',
         'email',
         'password',
     ];
@@ -44,6 +45,7 @@ class User extends Authenticatable implements JWTSubject
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'is_admin' => 'boolean',
         ];
     }
 
@@ -66,5 +68,10 @@ class User extends Authenticatable implements JWTSubject
     {
         return [];
     }
+
+    // public function canAccessPanel(Panel $panel): bool
+    // {
+    //     return $panel->getId() === 'admin' && $this->is_admin;
+    // }
 
 }
