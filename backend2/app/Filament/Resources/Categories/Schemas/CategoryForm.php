@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Categories\Schemas;
 
 use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\ToggleButtons;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
@@ -21,12 +22,11 @@ class CategoryForm
                         TextInput::make('name')
                             ->required()
                             ->live(onBlur: true)
-                            ->afterStateUpdated(function (string $state, Set $set) {
+                            ->afterStateUpdated(function ($state, Set $set) {
                                 $set('slug', Str::slug($state));
                             }),
 
                         TextInput::make('slug')
-                            ->required()
                             ->disabled()
                             ->dehydrated()
                             ->unique(ignoreRecord: true),
@@ -37,7 +37,13 @@ class CategoryForm
                             ->collection('categories')
                             ->required(),
 
-                    ])
+                        ToggleButtons::make('is_active')
+                            ->label('Status')
+                            ->boolean()
+                            ->grouped()
+                            ->default(true),
+                    ])->columnSpanFull(),
+
             ]);
     }
 }

@@ -5,6 +5,7 @@ namespace App\Filament\Resources\Categories\Tables;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
+use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\SpatieMediaLibraryImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
@@ -18,7 +19,10 @@ class CategoriesTable
                 TextColumn::make('name')
                     ->searchable(),
                 SpatieMediaLibraryImageColumn::make('images')
-                    ->collection('categories')
+                    ->collection('categories'),
+                IconColumn::make('is_active')
+                    ->sortable()
+                    ->boolean(),
             ])
             ->filters([
                 //
