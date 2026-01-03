@@ -31,6 +31,13 @@ class Product extends Model implements HasMedia
         });
     }
 
+    public function decrementStock(int $quantity): bool
+    {
+        return $this->where('id', $this->id)
+            ->where('stock', '>=', $quantity)
+            ->decrement('stock', $quantity);
+    }
+
     public function category()
     {
         return $this->belongsTo(Category::class);

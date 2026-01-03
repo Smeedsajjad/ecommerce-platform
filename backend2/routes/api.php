@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\CartController;
 use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\UserAuthController;
+use App\Http\Controllers\Api\OrderController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('auth')->group(function () {
@@ -22,6 +23,11 @@ Route::middleware('auth:api')->group(function () {
     Route::put('cart/{cartItem}', [CartController::class, 'update']);
     Route::delete('cart/{cartItem}', [CartController::class, 'destroy']);
     Route::delete('cart-clear', [CartController::class, 'clear']);
+
+    // Order APIs
+    Route::get('orders', [OrderController::class, 'index']);
+    Route::post('orders', [OrderController::class, 'store']);
+    Route::get('orders/{order}', [OrderController::class, 'show']);
 });
 
 // Categories and Products APIs

@@ -51,6 +51,8 @@ class DatabaseSeeder extends Seeder
             ]);
         }
 
+        $this->call(OrderSeeder::class);
+
         $this->command->info('Database seeded successfully!');
         $this->command->info('Admin login: admin@gmail.com / password');
     }
