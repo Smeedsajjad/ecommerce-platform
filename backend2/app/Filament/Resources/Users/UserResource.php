@@ -39,7 +39,7 @@ class UserResource extends Resource
         ];
     }
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::UserGroup;
 
     public static function getPages(): array
     {

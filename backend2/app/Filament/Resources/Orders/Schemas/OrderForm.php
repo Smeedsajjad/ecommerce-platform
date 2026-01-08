@@ -24,10 +24,12 @@ class OrderForm
                 Select::make('status')
                     ->options([
                         'pending' => 'Pending',
-                        'paid' => 'Paid',
-                        'shipped' => 'Shipped'
+                        'shipping' => 'Shipping',
+                        'delivered' => 'Delivered',
+                        'cancelled' => 'Cancelled',
                     ])
                     ->default('pending')
+                    ->native(false)
                     ->required(),
             ]);
     }

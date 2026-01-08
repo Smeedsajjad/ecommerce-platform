@@ -24,6 +24,7 @@ class User extends Authenticatable implements FilamentUser, JWTSubject
         'is_admin',
         'email',
         'password',
+        'stripe_customer_id',
     ];
 
     /**

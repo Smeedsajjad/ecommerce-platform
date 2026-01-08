@@ -5,7 +5,6 @@ use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\UserAuthController;
 use App\Http\Controllers\Api\OrderController;
-use App\Http\Controllers\Api\PaymentController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('auth')->group(function () {
@@ -31,10 +30,7 @@ Route::middleware('auth:api')->group(function () {
     Route::post('orders', [OrderController::class, 'store']);
     Route::get('orders/{order}', [OrderController::class, 'show']);
 
-    // Payment APIs
-    Route::get('payments', [PaymentController::class, 'index']);
-    Route::post('payments', [PaymentController::class, 'store']);
-    Route::get('payments/{payment}', [PaymentController::class, 'show']);
+
 });
 
 // Categories and Products APIs

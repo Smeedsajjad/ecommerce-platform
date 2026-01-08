@@ -26,10 +26,9 @@ class OrdersTable
                     ->badge()
                     ->color(fn(string $state): string => match ($state) {
                         'pending' => 'gray',
-                        'paid' => 'success',
                         'shipped' => 'info',
-                        'completed' => 'success',
-                        'failed' => 'danger',
+                        'delivered' => 'success',
+                        'cancelled' => 'danger',
                         default => 'gray',
                     }),
                 TextColumn::make('created_at')
