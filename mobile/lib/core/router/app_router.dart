@@ -1,3 +1,4 @@
+import 'package:ecommerence/features/product/screens/product_list.dart';
 import 'package:flutter/material.dart';
 import 'package:ecommerence/features/auth/screens/login_screen.dart';
 import 'package:ecommerence/features/auth/screens/sign_in_screen.dart';
@@ -21,12 +22,12 @@ final routerNotifierProvider = Provider<RouterNotifier>((ref) {
 
 final routerProvider = Provider<GoRouter>((ref) {
   final notifier = ref.watch(routerNotifierProvider);
-  final authState = ref.watch(authServiceProvider);
 
   return GoRouter(
     refreshListenable: notifier,
     initialLocation: '/login',
     redirect: (context, state) {
+      final authState = ref.read(authServiceProvider);
       final status = authState.status;
 
       // Determine if the user is currently on an auth-related screen
@@ -75,6 +76,11 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/home',
         name: 'home',
         builder: (context, state) => const HomeScreen(),
+      ),
+      GoRoute(
+        path: '/product_list',
+        name: 'product_list',
+        builder: (context, state) => const ProductList(),
       ),
     ],
   );

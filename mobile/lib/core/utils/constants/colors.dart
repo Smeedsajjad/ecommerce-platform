@@ -23,6 +23,7 @@ class AppColors {
   // static const Color disabledBackgroundDark = Color(0xFF222A3D); // Theme Nightingale Gray 80
 
   // Background colors
+  static const Color background = Color(0xFFFFe6cf);
   static const Color lightBackground = Color(0xFFFFFFFF);
   static const Color darkBackground = Color(
     0xFF02040A,
