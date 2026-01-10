@@ -1,3 +1,4 @@
+import 'package:ecommerence/core/utils/constants/sizes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -87,7 +88,8 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
               Text(
                 '''Let's create your account''',
                 style: Theme.of(context).textTheme.headlineMedium!.copyWith(
-                  fontWeight: FontWeight.w700,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.secondary,
                 ),
               ),
 
@@ -102,10 +104,13 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                       decoration: InputDecoration(
                         hintText: 'Full Name',
                         hintStyle: const TextStyle(
-                          fontWeight: FontWeight.w600,
-                          color: Colors.black,
+                          fontWeight: FontWeight.w500,
+                          color: AppColors.textSecondary,
                         ),
-                        prefixIcon: const Icon(Icons.person_outline_outlined),
+                        prefixIcon: const Icon(
+                          Icons.person_outline_outlined,
+                          color: AppColors.textSecondary,
+                        ),
                         contentPadding: const EdgeInsets.all(16),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
@@ -124,10 +129,13 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                       decoration: InputDecoration(
                         hintText: 'Email',
                         hintStyle: const TextStyle(
-                          fontWeight: FontWeight.w600,
-                          color: Colors.black,
+                          fontWeight: FontWeight.w500,
+                          color: AppColors.textSecondary,
                         ),
-                        prefixIcon: const Icon(Icons.email_outlined),
+                        prefixIcon: const Icon(
+                          Icons.email_outlined,
+                          color: AppColors.textSecondary,
+                        ),
                         contentPadding: const EdgeInsets.all(16),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
@@ -156,10 +164,13 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                       decoration: InputDecoration(
                         hintText: 'Password',
                         hintStyle: const TextStyle(
-                          fontWeight: FontWeight.w600,
-                          color: Colors.black,
+                          fontWeight: FontWeight.w500,
+                          color: AppColors.textSecondary,
                         ),
-                        prefixIcon: const Icon(Icons.password),
+                        prefixIcon: const Icon(
+                          Icons.password,
+                          color: AppColors.textSecondary,
+                        ),
                         suffixIcon: IconButton(
                           icon: Icon(
                             _isObscured
@@ -199,7 +210,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                           width: 24,
                           height: 24,
                           child: Checkbox(
-                            activeColor: AppColors.primary,
+                            activeColor: AppColors.secondary,
                             value: _policyCheck,
                             onChanged: (val) {
                               setState(() {
@@ -269,24 +280,26 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                         onPressed: isLoading ? null : _handleSignup,
                         style: ElevatedButton.styleFrom(
                           side: BorderSide.none,
-                          backgroundColor: AppColors.primary,
+                          backgroundColor: AppColors.secondary,
                           foregroundColor: Colors.white,
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
+                            borderRadius: BorderRadius.circular(
+                              AppSizes.buttonRadius,
+                            ),
                           ),
                         ),
                         child: isLoading
                             ? const CircularProgressIndicator(
                                 color: Colors.white,
                               )
-                            : const Text('Create Account'),
+                            : const Text('Sign Up'),
                       ),
                     ),
 
                     const SizedBox(height: 32),
                     const Center(
                       child: Text(
-                        'Or sign in with',
+                        'Or sign up with',
                         style: TextStyle(color: Colors.grey),
                       ),
                     ),

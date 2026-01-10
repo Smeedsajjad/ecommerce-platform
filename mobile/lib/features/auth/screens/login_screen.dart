@@ -68,6 +68,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 'Welcome back,',
                 style: Theme.of(context).textTheme.headlineMedium!.copyWith(
                   fontWeight: FontWeight.bold,
+                  color: AppColors.secondary,
                 ),
               ),
 
@@ -92,10 +93,13 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       decoration: InputDecoration(
                         hintText: 'Email',
                         hintStyle: const TextStyle(
-                          fontWeight: FontWeight.w600,
-                          color: Colors.black,
+                          fontWeight: FontWeight.w500,
+                          color: AppColors.textSecondary,
                         ),
-                        prefixIcon: const Icon(Icons.email_outlined),
+                        prefixIcon: const Icon(
+                          Icons.email_outlined,
+                          color: AppColors.textSecondary,
+                        ),
                         contentPadding: const EdgeInsets.all(16),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
@@ -124,10 +128,13 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       decoration: InputDecoration(
                         hintText: 'Password',
                         hintStyle: const TextStyle(
-                          fontWeight: FontWeight.w600,
-                          color: Colors.black,
+                          fontWeight: FontWeight.w500,
+                          color: AppColors.textSecondary,
                         ),
-                        prefixIcon: const Icon(Icons.password),
+                        prefixIcon: const Icon(
+                          Icons.password,
+                          color: AppColors.textSecondary,
+                        ),
                         suffixIcon: IconButton(
                           icon: Icon(
                             _isObscured
@@ -167,7 +174,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           children: [
                             Checkbox(
                               value: _rememberMe,
-                              activeColor: AppColors.primary,
+                              activeColor: AppColors.secondary,
                               onChanged: (val) {
                                 setState(() {
                                   _rememberMe = val ?? false;
@@ -191,17 +198,19 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         onPressed: isLoading ? null : _handleLogin,
                         style: ElevatedButton.styleFrom(
                           side: BorderSide.none,
-                          backgroundColor: AppColors.primary,
+                          backgroundColor: AppColors.secondary,
                           foregroundColor: Colors.white,
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
+                            borderRadius: BorderRadius.circular(
+                              AppSizes.buttonRadius,
+                            ),
                           ),
                         ),
                         child: isLoading
                             ? const CircularProgressIndicator(
                                 color: Colors.white,
                               )
-                            : const Text('Sign in'),
+                            : const Text('Login'),
                       ),
                     ),
                     const SizedBox(height: 16),
@@ -218,7 +227,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           backgroundColor: Colors.white,
                           foregroundColor: Colors.black,
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
+                            borderRadius: BorderRadius.circular(
+                              AppSizes.buttonRadius,
+                            ),
                           ),
                         ),
                         child: const Text(
