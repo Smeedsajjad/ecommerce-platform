@@ -1,12 +1,16 @@
 import 'package:ecommerence/core/utils/constants/colors.dart';
+import 'package:ecommerence/features/product/services/product_service.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-class ProductList extends StatelessWidget {
+class ProductList extends ConsumerWidget {
   const ProductList({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final productState = ref.watch(productProvider);
+
     return Scaffold(
       body: CustomScrollView(
         slivers: [
@@ -101,7 +105,7 @@ class ProductList extends StatelessWidget {
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24.0),
               child: Text(
-                'showing 178 out of 178 products',
+                'showing ${productState.maybeWhen(data: (list) => list.length, orElse: () => 0)} products',
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                   fontWeight: FontWeight.normal,
                   color: AppColors.textSecondary,
@@ -109,69 +113,105 @@ class ProductList extends StatelessWidget {
               ),
             ),
           ),
-          SliverPadding(
-            padding: const EdgeInsets.all(24.0),
-            sliver: SliverGrid(
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                crossAxisSpacing: 16,
-                mainAxisSpacing: 16,
-                childAspectRatio: 0.75,
+          productState.when(
+            data: (products) => SliverPadding(
+              padding: const EdgeInsets.all(24.0),
+              sliver: SliverGrid(
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  crossAxisSpacing: 16,
+                  mainAxisSpacing: 16,
+                  childAspectRatio: 0.75,
+                ),
+                delegate: SliverChildBuilderDelegate((context, index) {
+                  final product = products[index];
+                  return GestureDetector(
+                    onTap: () {
+                      context.pushNamed(
+                        'product_details',
+                        pathParameters: {'id': product.id.toString()},
+                      );
+                    },
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: AppColors.lightGrey,
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: AppColors.background.withValues(
+                                  alpha: 0.2,
+                                ),
+                                borderRadius: const BorderRadius.vertical(
+                                  top: Radius.circular(20),
+                                ),
+                              ),
+                              child: Center(
+                                child: product.images.isNotEmpty
+                                    ? Image.network(
+                                        product.images.first,
+                                        fit: BoxFit.cover,
+                                        width: double.infinity,
+                                        height: double.infinity,
+                                        errorBuilder:
+                                            (
+                                              context,
+                                              error,
+                                              stackTrace,
+                                            ) => const Icon(
+                                              Icons
+                                                  .image_not_supported_outlined,
+                                              size: 40,
+                                              color: AppColors.grey,
+                                            ),
+                                      )
+                                    : const Icon(
+                                        Icons.image_outlined,
+                                        size: 40,
+                                        color: AppColors.grey,
+                                      ),
+                              ),
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.all(12),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  product.name,
+                                  style: Theme.of(context).textTheme.bodyLarge
+                                      ?.copyWith(fontWeight: FontWeight.bold),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  '\$${product.price.toStringAsFixed(2)}',
+                                  style: Theme.of(context).textTheme.bodyMedium
+                                      ?.copyWith(
+                                        color: AppColors.secondary,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                }, childCount: products.length),
               ),
-              delegate: SliverChildBuilderDelegate((context, index) {
-                return Container(
-                  decoration: BoxDecoration(
-                    color: AppColors.lightGrey,
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Expanded(
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: AppColors.background.withValues(alpha: 0.2),
-                            borderRadius: const BorderRadius.vertical(
-                              top: Radius.circular(20),
-                            ),
-                          ),
-                          child: const Center(
-                            child: Icon(
-                              Icons.image_outlined,
-                              size: 40,
-                              color: AppColors.grey,
-                            ),
-                          ),
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.all(12),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Product Item ${index + 1}',
-                              style: Theme.of(context).textTheme.bodyLarge
-                                  ?.copyWith(fontWeight: FontWeight.bold),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              '\$${(index + 1) * 25}.00',
-                              style: Theme.of(context).textTheme.bodyMedium
-                                  ?.copyWith(
-                                    color: AppColors.secondary,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                );
-              }, childCount: 6),
+            ),
+            error: (error, stackTrace) =>
+                SliverToBoxAdapter(child: Center(child: Text('Error: $error'))),
+            loading: () => const SliverToBoxAdapter(
+              child: Center(child: CircularProgressIndicator()),
             ),
           ),
           const SliverToBoxAdapter(

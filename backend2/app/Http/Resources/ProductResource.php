@@ -22,7 +22,7 @@ class ProductResource extends JsonResource
             'price' => (float) $this->price,
             'stock' => (int) $this->stock,
             'is_active' => $this->is_active,
-            'images' => $this->getMedia('products')->map(fn($media) => $media->getUrl())->toArray(),
+            'images' => $this->getMedia('products')->map(fn($media) => $media->getFullUrl())->toArray(),
             'category' => new CategoryResource($this->whenLoaded('category')),
             'created_at' => $this->created_at?->toDateTimeString(),
         ];

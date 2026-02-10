@@ -1,3 +1,4 @@
+import 'package:ecommerence/features/product/screens/product_details_screen.dart';
 import 'package:ecommerence/features/product/screens/product_list.dart';
 import 'package:flutter/material.dart';
 import 'package:ecommerence/features/auth/screens/login_screen.dart';
@@ -11,7 +12,6 @@ class RouterNotifier extends ChangeNotifier {
   final Ref _ref;
 
   RouterNotifier(this._ref) {
-    // Listen to auth state changes and notify the router
     _ref.listen(authServiceProvider, (_, __) => notifyListeners());
   }
 }
@@ -21,28 +21,20 @@ final routerNotifierProvider = Provider<RouterNotifier>((ref) {
 });
 
 final routerProvider = Provider<GoRouter>((ref) {
-  final notifier = ref.watch(routerNotifierProvider);
-
   return GoRouter(
-    refreshListenable: notifier,
-    initialLocation: '/login',
+    refreshListenable: ref.watch(routerNotifierProvider),
+    initialLocation: '/home',
     redirect: (context, state) {
       final authState = ref.read(authServiceProvider);
       final status = authState.status;
 
-      // Determine if the user is currently on an auth-related screen
       final isLoggingIn = state.matchedLocation == '/login';
       final isSigningUp = state.matchedLocation == '/signup';
 
-      // 1. Loading state:
-      // If we are at the app start (initialLocation is /login), stay there.
-      // If we are already on login/signup, stay there.
       if (status == AuthStatus.loading) {
         return null;
       }
 
-      // 2. Authenticated:
-      // Move to home if currently on auth screens.
       if (status == AuthStatus.authenticated) {
         if (isLoggingIn || isSigningUp) {
           return '/home';
@@ -50,17 +42,9 @@ final routerProvider = Provider<GoRouter>((ref) {
         return null;
       }
 
-      // 3. Unauthenticated / Error:
-      // Must be on login or signup screen.
-      if (status == AuthStatus.unauthenticated || status == AuthStatus.error) {
-        if (!isLoggingIn && !isSigningUp) {
-          return '/login';
-        }
-        return null;
-      }
-
       return null;
     },
+
     routes: [
       GoRoute(
         path: '/login',
@@ -81,6 +65,14 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/product_list',
         name: 'product_list',
         builder: (context, state) => const ProductList(),
+      ),
+      GoRoute(
+        path: '/product_details/:id',
+        name: 'product_details',
+        builder: (context, state) {
+          final id = state.pathParameters['id']!;
+          return ProductDetailsScreen(productId: id);
+        },
       ),
     ],
   );

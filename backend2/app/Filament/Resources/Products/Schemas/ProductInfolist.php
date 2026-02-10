@@ -18,6 +18,7 @@ class ProductInfolist
                 TextEntry::make('category.name')
                     ->label('Category'),
                 SpatieMediaLibraryImageEntry::make('image')
+                    ->disk('public')
                     ->collection('products')
                     ->columnSpanFull(),
                 TextEntry::make('description')

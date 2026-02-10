@@ -1,13 +1,17 @@
 import 'package:ecommerence/core/utils/constants/colors.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:ecommerence/features/auth/services/auth_service.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final authState = ref.watch(authServiceProvider);
+    final isAuthenticated = authState.status == AuthStatus.authenticated;
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -47,31 +51,91 @@ class HomeScreen extends StatelessWidget {
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            'Find your unique style',
+                            isAuthenticated
+                                ? 'Welcome back, ${authState.user?.name ?? 'User'}'
+                                : 'Find your unique style',
                             style: theme.textTheme.bodyMedium?.copyWith(
                               color: AppColors.primary.withValues(alpha: 0.6),
                             ),
                           ),
                         ],
                       ),
-                      Container(
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(12),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.05),
-                              blurRadius: 10,
+                      Row(
+                        children: [
+                          Container(
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(12),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withValues(alpha: 0.05),
+                                  blurRadius: 10,
+                                ),
+                              ],
                             ),
-                          ],
-                        ),
-                        child: IconButton(
-                          onPressed: () {},
-                          icon: const Icon(
-                            Icons.shopping_cart_outlined,
-                            color: AppColors.primary,
+                            child: IconButton(
+                              onPressed: () {},
+                              icon: const Icon(
+                                Icons.shopping_cart_outlined,
+                                color: AppColors.primary,
+                              ),
+                            ),
                           ),
-                        ),
+                          const SizedBox(width: 12),
+                          if (!isAuthenticated)
+                            Container(
+                              decoration: BoxDecoration(
+                                color: AppColors.primary,
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: TextButton(
+                                onPressed: () => context.push('/login'),
+                                child: const Text(
+                                  'Login',
+                                  style: TextStyle(color: Colors.white),
+                                ),
+                              ),
+                            )
+                          else
+                            PopupMenuButton<String>(
+                              onSelected: (value) async {
+                                if (value == 'logout') {
+                                  await ref
+                                      .read(authServiceProvider.notifier)
+                                      .logout();
+                                }
+                              },
+                              itemBuilder: (context) => [
+                                const PopupMenuItem(
+                                  value: 'profile',
+                                  child: Text('Profile'),
+                                ),
+                                const PopupMenuItem(
+                                  value: 'logout',
+                                  child: Text('Logout'),
+                                ),
+                              ],
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(12),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withValues(
+                                        alpha: 0.05,
+                                      ),
+                                      blurRadius: 10,
+                                    ),
+                                  ],
+                                ),
+                                padding: const EdgeInsets.all(8),
+                                child: const Icon(
+                                  Icons.person_outline,
+                                  color: AppColors.primary,
+                                ),
+                              ),
+                            ),
+                        ],
                       ),
                     ],
                   ),

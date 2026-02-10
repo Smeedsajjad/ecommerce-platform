@@ -50,6 +50,7 @@ class ProductForm
                     ->columnSpanFull()
                     ->multiple()
                     ->reorderable()
+                    ->disk('public')
                     ->required(),
 
                 Textarea::make('description')
