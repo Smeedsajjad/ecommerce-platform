@@ -18,7 +18,9 @@ class CartItemResource extends JsonResource
             'id' => $this->id,
             'product_id' => $this->product_id,
             'product_name' => $this->product->name,
-            'image' => $this->product->getFirstMediaUrl('products') ?: null,
+            'image' => $this->product->hasMedia('products')
+                ? url($this->product->getFirstMediaUrl('products', 'thumb'))
+                : 'https://placehold.co/150x150',
             'price' => (float) $this->product->price,
             'quantity' => (int) $this->quantity,
             'subtotal' => (float) ($this->product->price * $this->quantity),

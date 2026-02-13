@@ -50,4 +50,30 @@ class ApiService {
   Future<Response> logout() async {
     return await _dio.post(ApiConstants.logout);
   }
+
+  Future<Response> getCart() async {
+    return await _dio.get(ApiConstants.cart);
+  }
+
+  Future<Response> addToCart(int productId, int quantity) async {
+    return await _dio.post(
+      ApiConstants.cart,
+      data: {'product_id': productId, 'quantity': quantity},
+    );
+  }
+
+  Future<Response> updateCartItem(int itemId, int quantity) async {
+    return await _dio.put(
+      '${ApiConstants.cart}/$itemId',
+      data: {'quantity': quantity},
+    );
+  }
+
+  Future<Response> deleteCartItem(int itemId) async {
+    return await _dio.delete('${ApiConstants.cart}/$itemId');
+  }
+
+  Future<Response> clearCart() async {
+    return await _dio.delete('/cart-clear');
+  }
 }

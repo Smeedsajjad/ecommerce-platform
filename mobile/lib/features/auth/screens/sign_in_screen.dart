@@ -60,7 +60,9 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
     final isLoading = authState.status == AuthStatus.loading;
 
     ref.listen(authServiceProvider, (previous, next) {
-      if (next.status == AuthStatus.error && next.errorMessage != null) {
+      if (next.status == AuthStatus.authenticated) {
+        context.go('/home');
+      } else if (next.status == AuthStatus.error && next.errorMessage != null) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(next.errorMessage!),

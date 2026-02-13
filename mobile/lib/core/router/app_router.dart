@@ -1,3 +1,4 @@
+import 'package:ecommerence/features/cart/screens/cart_screen.dart';
 import 'package:ecommerence/features/product/screens/product_details_screen.dart';
 import 'package:ecommerence/features/product/screens/product_list.dart';
 import 'package:flutter/material.dart';
@@ -73,6 +74,11 @@ final routerProvider = Provider<GoRouter>((ref) {
           final id = state.pathParameters['id']!;
           return ProductDetailsScreen(productId: id);
         },
+      ),
+      GoRoute(
+        path: '/cart',
+        name: 'cart',
+        builder: (context, state) => const CartScreen(),
       ),
     ],
   );

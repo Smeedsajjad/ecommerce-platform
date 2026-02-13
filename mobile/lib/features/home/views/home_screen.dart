@@ -1,8 +1,11 @@
 import 'package:ecommerence/core/utils/constants/colors.dart';
+import 'package:ecommerence/features/auth/services/auth_service.dart';
+import 'package:ecommerence/features/common/widgets/cart_icon.dart';
+import 'package:ecommerence/features/common/widgets/product_card.dart';
+import 'package:ecommerence/features/product/services/product_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:ecommerence/features/auth/services/auth_service.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -11,6 +14,7 @@ class HomeScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final authState = ref.watch(authServiceProvider);
+    final productState = ref.watch(productProvider);
     final isAuthenticated = authState.status == AuthStatus.authenticated;
 
     return Scaffold(
@@ -52,7 +56,7 @@ class HomeScreen extends ConsumerWidget {
                           const SizedBox(height: 4),
                           Text(
                             isAuthenticated
-                                ? 'Welcome back, ${authState.user?.name ?? 'User'}'
+                                ? 'Hi, ${authState.user?.name ?? 'Guest'} 👋'
                                 : 'Find your unique style',
                             style: theme.textTheme.bodyMedium?.copyWith(
                               color: AppColors.primary.withValues(alpha: 0.6),
@@ -73,13 +77,7 @@ class HomeScreen extends ConsumerWidget {
                                 ),
                               ],
                             ),
-                            child: IconButton(
-                              onPressed: () {},
-                              icon: const Icon(
-                                Icons.shopping_cart_outlined,
-                                color: AppColors.primary,
-                              ),
-                            ),
+                            child: const CartIcon(),
                           ),
                           const SizedBox(width: 12),
                           if (!isAuthenticated)
@@ -97,40 +95,25 @@ class HomeScreen extends ConsumerWidget {
                               ),
                             )
                           else
-                            PopupMenuButton<String>(
-                              onSelected: (value) async {
-                                if (value == 'logout') {
+                            Container(
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(12),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withValues(alpha: 0.05),
+                                    blurRadius: 10,
+                                  ),
+                                ],
+                              ),
+                              child: IconButton(
+                                onPressed: () async {
                                   await ref
                                       .read(authServiceProvider.notifier)
                                       .logout();
-                                }
-                              },
-                              itemBuilder: (context) => [
-                                const PopupMenuItem(
-                                  value: 'profile',
-                                  child: Text('Profile'),
-                                ),
-                                const PopupMenuItem(
-                                  value: 'logout',
-                                  child: Text('Logout'),
-                                ),
-                              ],
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(12),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.black.withValues(
-                                        alpha: 0.05,
-                                      ),
-                                      blurRadius: 10,
-                                    ),
-                                  ],
-                                ),
-                                padding: const EdgeInsets.all(8),
-                                child: const Icon(
-                                  Icons.person_outline,
+                                },
+                                icon: const Icon(
+                                  Icons.logout,
                                   color: AppColors.primary,
                                 ),
                               ),
@@ -263,71 +246,25 @@ class HomeScreen extends ConsumerWidget {
                   ),
                   const SizedBox(height: 16),
                   // Grid of products placeholder
-                  GridView.builder(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 2,
-                          crossAxisSpacing: 16,
-                          mainAxisSpacing: 16,
-                          childAspectRatio: 0.75,
-                        ),
-                    itemCount: 4,
-                    itemBuilder: (context, index) {
-                      return Container(
-                        decoration: BoxDecoration(
-                          color: AppColors.lightGrey,
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Expanded(
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  color: AppColors.background.withValues(
-                                    alpha: 0.2,
-                                  ),
-                                  borderRadius: const BorderRadius.vertical(
-                                    top: Radius.circular(20),
-                                  ),
-                                ),
-                                child: const Center(
-                                  child: Icon(
-                                    Icons.image_outlined,
-                                    size: 40,
-                                    color: AppColors.grey,
-                                  ),
-                                ),
-                              ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.all(12),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'Product Item ${index + 1}',
-                                    style: theme.textTheme.bodyLarge?.copyWith(
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    '\$${(index + 1) * 25}.00',
-                                    style: theme.textTheme.bodyMedium?.copyWith(
-                                      color: AppColors.secondary,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      );
-                    },
+                  productState.when(
+                    data: (products) => GridView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 2,
+                            crossAxisSpacing: 16,
+                            mainAxisSpacing: 16,
+                            childAspectRatio: 0.75,
+                          ),
+                      itemCount: products.length > 4 ? 4 : products.length,
+                      itemBuilder: (context, index) {
+                        return ProductCard(product: products[index]);
+                      },
+                    ),
+                    loading: () =>
+                        const Center(child: CircularProgressIndicator()),
+                    error: (err, stack) => Center(child: Text('Error: $err')),
                   ),
                 ],
               ),

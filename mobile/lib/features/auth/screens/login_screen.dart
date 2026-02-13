@@ -41,9 +41,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     final authState = ref.watch(authServiceProvider);
     final isLoading = authState.status == AuthStatus.loading;
 
-    // Listen for error messages
+    // Listen for auth state changes
     ref.listen(authServiceProvider, (previous, next) {
-      if (next.status == AuthStatus.error && next.errorMessage != null) {
+      if (next.status == AuthStatus.authenticated) {
+        context.go('/home');
+      } else if (next.status == AuthStatus.error && next.errorMessage != null) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(next.errorMessage!),
@@ -210,7 +212,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                             ? const CircularProgressIndicator(
                                 color: Colors.white,
                               )
-                            : const Text('Login'),
+                            : const Text(
+                                'Login',
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                              ),
                       ),
                     ),
                     const SizedBox(height: 16),

@@ -37,19 +37,20 @@ class DatabaseSeeder extends Seeder
         }
 
         // Create random users
-        $users = User::factory(10)->create();
+        $users = User::factory(50)->create();
 
-        // Create a cart for admin with some products
-        $cart = Cart::create(['user_id' => $users->first()->id]);
+        // Create carts and cart items for each random user
+        $users->each(function ($user) {
+            $cart = Cart::factory()->create(['user_id' => $user->id]);
 
-        $randomProducts = Product::inRandomOrder()->limit(3)->get();
-        foreach ($randomProducts as $product) {
-            \App\Models\CartItem::create([
-                'cart_id' => $cart->id,
-                'product_id' => $product->id,
-                'quantity' => rand(1, 3),
-            ]);
-        }
+            $products = Product::inRandomOrder()->limit(rand(1, 5))->get();
+            foreach ($products as $product) {
+                \App\Models\CartItem::factory()->create([
+                    'cart_id' => $cart->id,
+                    'product_id' => $product->id,
+                ]);
+            }
+        });
 
         $this->call(OrderSeeder::class);
 

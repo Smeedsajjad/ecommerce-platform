@@ -1,4 +1,6 @@
 import 'package:ecommerence/core/utils/constants/colors.dart';
+import 'package:ecommerence/features/common/widgets/cart_icon.dart';
+import 'package:ecommerence/features/common/widgets/product_card.dart';
 import 'package:ecommerence/features/product/services/product_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -46,16 +48,7 @@ class ProductList extends ConsumerWidget {
               centerTitle: true,
               titlePadding: const EdgeInsets.only(bottom: 16),
             ),
-            actions: [
-              IconButton(
-                icon: const Icon(
-                  Icons.search,
-                  size: 28,
-                  color: AppColors.primary,
-                ),
-                onPressed: () {},
-              ),
-            ],
+            actions: [const CartIcon()],
           ),
           SliverToBoxAdapter(
             child: Padding(
@@ -124,87 +117,7 @@ class ProductList extends ConsumerWidget {
                   childAspectRatio: 0.75,
                 ),
                 delegate: SliverChildBuilderDelegate((context, index) {
-                  final product = products[index];
-                  return GestureDetector(
-                    onTap: () {
-                      context.pushNamed(
-                        'product_details',
-                        pathParameters: {'id': product.id.toString()},
-                      );
-                    },
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: AppColors.lightGrey,
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Expanded(
-                            child: Container(
-                              decoration: BoxDecoration(
-                                color: AppColors.background.withValues(
-                                  alpha: 0.2,
-                                ),
-                                borderRadius: const BorderRadius.vertical(
-                                  top: Radius.circular(20),
-                                ),
-                              ),
-                              child: Center(
-                                child: product.images.isNotEmpty
-                                    ? Image.network(
-                                        product.images.first,
-                                        fit: BoxFit.cover,
-                                        width: double.infinity,
-                                        height: double.infinity,
-                                        errorBuilder:
-                                            (
-                                              context,
-                                              error,
-                                              stackTrace,
-                                            ) => const Icon(
-                                              Icons
-                                                  .image_not_supported_outlined,
-                                              size: 40,
-                                              color: AppColors.grey,
-                                            ),
-                                      )
-                                    : const Icon(
-                                        Icons.image_outlined,
-                                        size: 40,
-                                        color: AppColors.grey,
-                                      ),
-                              ),
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.all(12),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  product.name,
-                                  style: Theme.of(context).textTheme.bodyLarge
-                                      ?.copyWith(fontWeight: FontWeight.bold),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  '\$${product.price.toStringAsFixed(2)}',
-                                  style: Theme.of(context).textTheme.bodyMedium
-                                      ?.copyWith(
-                                        color: AppColors.secondary,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  );
+                  return ProductCard(product: products[index]);
                 }, childCount: products.length),
               ),
             ),

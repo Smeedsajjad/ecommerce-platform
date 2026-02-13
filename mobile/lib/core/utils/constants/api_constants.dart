@@ -9,4 +9,5 @@ class ApiConstants {
   static const String userProfile = '/auth/me';
 
   static const String products = '/products';
+  static const String cart = '/cart';
 }
