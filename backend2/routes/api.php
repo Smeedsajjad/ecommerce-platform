@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\CartController;
 use App\Http\Controllers\Api\CategoryController;
+use App\Http\Controllers\Api\CheckoutController;
 use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\UserAuthController;
 use App\Http\Controllers\Api\OrderController;
@@ -24,13 +25,13 @@ Route::middleware('auth:api')->group(function () {
     Route::delete('cart/{cartItem}', [CartController::class, 'destroy']);
     Route::delete('cart-clear', [CartController::class, 'clear']);
 
+    // Checkout API – validates cart and returns server-side totals
+    Route::get('checkout/summary', [CheckoutController::class, 'summary']);
 
     // Order APIs
     Route::get('orders', [OrderController::class, 'index']);
     Route::post('orders', [OrderController::class, 'store']);
     Route::get('orders/{order}', [OrderController::class, 'show']);
-
-
 });
 
 // Categories and Products APIs
@@ -39,3 +40,6 @@ Route::get('categories/{category}', [CategoryController::class, 'show']);
 
 Route::get('products', [ProductController::class, 'index']);
 Route::get('products/{product}', [ProductController::class, 'show']);
+
+// Stripe Webhook (No Auth)
+Route::post('webhooks/stripe', [\App\Http\Controllers\Api\StripeWebhookController::class, 'handle']);

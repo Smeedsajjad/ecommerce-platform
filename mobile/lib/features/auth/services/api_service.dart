@@ -76,4 +76,20 @@ class ApiService {
   Future<Response> clearCart() async {
     return await _dio.delete('/cart-clear');
   }
+
+  Future<Response> getCheckoutSummary() async {
+    return await _dio.get(ApiConstants.checkoutSummary);
+  }
+
+  Future<Response> placeOrder() async {
+    return await _dio.post(ApiConstants.orders);
+  }
+
+  Future<Response> getOrders() async {
+    return await _dio.get(ApiConstants.orders);
+  }
+
+  Future<Response> getOrder(int orderId) async {
+    return await _dio.get('${ApiConstants.orders}/$orderId');
+  }
 }

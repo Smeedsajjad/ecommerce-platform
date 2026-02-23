@@ -256,12 +256,14 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     const SizedBox(height: 20),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
+                      mainAxisSize: MainAxisSize
+                          .min, // Ensure row doesn't try to take extra space
                       children: [
                         _socialButton(
                           image: AppImageStrings.googleLogo,
                           onPressed: () {},
                         ),
-                        const SizedBox(width: AppSizes.spaceBtwItems),
+                        const SizedBox(width: 16),
                         _socialButton(
                           image: AppImageStrings.facebookLogo,
                           onPressed: () {},

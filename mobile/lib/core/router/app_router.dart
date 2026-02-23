@@ -1,4 +1,6 @@
 import 'package:ecommerence/features/cart/screens/cart_screen.dart';
+import 'package:ecommerence/features/checkout/screens/checkout_screen.dart';
+import 'package:ecommerence/features/checkout/screens/order_success_screen.dart';
 import 'package:ecommerence/features/product/screens/product_details_screen.dart';
 import 'package:ecommerence/features/product/screens/product_list.dart';
 import 'package:flutter/material.dart';
@@ -79,6 +81,19 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/cart',
         name: 'cart',
         builder: (context, state) => const CartScreen(),
+      ),
+      GoRoute(
+        path: '/checkout',
+        name: 'checkout',
+        builder: (context, state) => const CheckoutScreen(),
+      ),
+      GoRoute(
+        path: '/order-success/:orderId',
+        name: 'order_success',
+        builder: (context, state) {
+          final orderId = int.parse(state.pathParameters['orderId']!);
+          return OrderSuccessScreen(orderId: orderId);
+        },
       ),
     ],
   );

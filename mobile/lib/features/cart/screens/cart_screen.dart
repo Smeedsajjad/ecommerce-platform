@@ -1,15 +1,50 @@
 import 'package:ecommerence/core/utils/constants/colors.dart';
 import 'package:ecommerence/core/utils/constants/sizes.dart';
 import 'package:ecommerence/features/cart/services/cart_service.dart';
+import 'package:ecommerence/features/checkout/services/checkout_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-class CartScreen extends ConsumerWidget {
+class CartScreen extends ConsumerStatefulWidget {
   const CartScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<CartScreen> createState() => _CartScreenState();
+}
+
+class _CartScreenState extends ConsumerState<CartScreen> {
+  bool _checkingOut = false;
+
+  Future<void> _proceedToCheckout() async {
+    setState(() => _checkingOut = true);
+    try {
+      // Fetch server-validated summary (validates cart, stock, prices)
+      final summary = await ref
+          .read(checkoutServiceProvider)
+          .getCheckoutSummary();
+
+      // Store summary so CheckoutScreen can read it without another call
+      ref.read(checkoutSummaryProvider.notifier).state = summary;
+
+      if (mounted) context.push('/checkout');
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(e.toString()),
+            backgroundColor: Colors.red,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _checkingOut = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final cartAsync = ref.watch(cartProvider);
 
     return SafeArea(
@@ -255,13 +290,13 @@ class CartScreen extends ConsumerWidget {
                         width: double.infinity,
                         height: 55,
                         child: ElevatedButton(
-                          onPressed: () {
-                            // TODO: Implement Checkout logic
-                          },
+                          onPressed: _checkingOut ? null : _proceedToCheckout,
                           style: ElevatedButton.styleFrom(
                             elevation: 0,
                             backgroundColor: AppColors.secondary,
                             foregroundColor: Colors.white,
+                            disabledBackgroundColor: AppColors.secondary
+                                .withValues(alpha: 0.6),
                             side: const BorderSide(color: Colors.transparent),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(
@@ -269,13 +304,22 @@ class CartScreen extends ConsumerWidget {
                               ),
                             ),
                           ),
-                          child: const Text(
-                            'Proceed to checkout',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
+                          child: _checkingOut
+                              ? const SizedBox(
+                                  height: 22,
+                                  width: 22,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2.5,
+                                    color: Colors.white,
+                                  ),
+                                )
+                              : const Text(
+                                  'Proceed to Checkout',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
                         ),
                       ),
                       const SizedBox(height: 16),
