@@ -68,7 +68,7 @@ class OrderService
     public function getUserOrders(User $user)
     {
         return Order::where('user_id', $user->id)
-            ->with('items.product')
+            ->with(['items.product', 'payment'])
             ->orderBy('created_at', 'desc')
             ->get();
     }
@@ -77,7 +77,7 @@ class OrderService
     {
         $order = Order::where('id', $orderId)
             ->where('user_id', $user->id)
-            ->with('items.product')
+            ->with(['items.product', 'payment'])
             ->first();
 
         if (!$order) {

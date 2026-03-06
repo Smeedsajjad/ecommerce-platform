@@ -1,33 +1,10 @@
 import 'package:dio/dio.dart';
-import 'package:ecommerence/core/storage/secure_storage.dart';
 import 'package:ecommerence/core/utils/constants/api_constants.dart';
 
 class ApiService {
   final Dio _dio;
-  final SecureStorage _storage;
 
-  ApiService(this._dio, this._storage) {
-    _dio.options.baseUrl = ApiConstants.baseUrl;
-    _dio.options.headers["Accept"] = "application/json";
-
-    _dio.interceptors.add(
-      InterceptorsWrapper(
-        onRequest: (options, handler) async {
-          final token = await _storage.getAccessToken();
-          if (token != null) {
-            options.headers["Authorization"] = "Bearer $token";
-          }
-          return handler.next(options);
-        },
-        onError: (error, handler) async {
-          if (error.response?.statusCode == 401) {
-            await _storage.deleteTokens();
-          }
-          return handler.next(error);
-        },
-      ),
-    );
-  }
+  ApiService(this._dio);
 
   Future<Response> login(String email, String password) async {
     return await _dio.post(
@@ -74,7 +51,7 @@ class ApiService {
   }
 
   Future<Response> clearCart() async {
-    return await _dio.delete('/cart-clear');
+    return await _dio.delete('cart-clear');
   }
 
   Future<Response> getCheckoutSummary() async {

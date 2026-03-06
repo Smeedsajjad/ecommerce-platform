@@ -1,4 +1,5 @@
 import 'package:ecommerence/core/utils/constants/colors.dart';
+import 'package:ecommerence/features/auth/services/auth_service.dart';
 import 'package:ecommerence/features/cart/services/cart_service.dart';
 import 'package:ecommerence/features/product/models/product_model.dart';
 import 'package:flutter/material.dart';
@@ -76,6 +77,21 @@ class ProductCard extends ConsumerWidget {
                           size: 20,
                         ),
                         onPressed: () {
+                          final authState = ref.read(authServiceProvider);
+                          if (authState.status != AuthStatus.authenticated) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: const Text(
+                                  'Please login to add items to cart',
+                                ),
+                                action: SnackBarAction(
+                                  label: 'Login',
+                                  onPressed: () => context.push('/login'),
+                                ),
+                              ),
+                            );
+                            return;
+                          }
                           ref.read(cartProvider.notifier).addItem(product.id);
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(

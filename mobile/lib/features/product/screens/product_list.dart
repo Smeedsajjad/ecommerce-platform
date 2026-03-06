@@ -40,9 +40,10 @@ class ProductList extends ConsumerWidget {
             flexibleSpace: FlexibleSpaceBar(
               title: Text(
                 'Products',
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                style: TextStyle(
+                  fontSize: 22,
                   fontWeight: FontWeight.bold,
-                  color: AppColors.primary,
+                  color: AppColors.textPrimary,
                 ),
               ),
               centerTitle: true,

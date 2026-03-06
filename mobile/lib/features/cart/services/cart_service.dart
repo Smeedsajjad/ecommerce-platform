@@ -1,6 +1,8 @@
+import 'package:dio/dio.dart';
 import 'package:ecommerence/core/providers/common_providers.dart';
 import 'package:ecommerence/features/auth/services/api_service.dart';
 import 'package:ecommerence/features/cart/models/cart_model.dart';
+import 'package:ecommerence/features/auth/services/auth_service.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class CartService {
@@ -9,27 +11,57 @@ class CartService {
   CartService(this._apiService);
 
   Future<CartModel> getCart() async {
-    final response = await _apiService.getCart();
-    return CartModel.fromJson(response.data['data']);
+    try {
+      final response = await _apiService.getCart();
+      return CartModel.fromJson(response.data['data']);
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
   }
 
   Future<CartModel> addToCart(int productId, int quantity) async {
-    final response = await _apiService.addToCart(productId, quantity);
-    return CartModel.fromJson(response.data['data']);
+    try {
+      final response = await _apiService.addToCart(productId, quantity);
+      return CartModel.fromJson(response.data['data']);
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
   }
 
   Future<CartModel> updateCartItem(int itemId, int quantity) async {
-    final response = await _apiService.updateCartItem(itemId, quantity);
-    return CartModel.fromJson(response.data['data']);
+    try {
+      final response = await _apiService.updateCartItem(itemId, quantity);
+      return CartModel.fromJson(response.data['data']);
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
   }
 
   Future<CartModel> deleteCartItem(int itemId) async {
-    final response = await _apiService.deleteCartItem(itemId);
-    return CartModel.fromJson(response.data['data']);
+    try {
+      final response = await _apiService.deleteCartItem(itemId);
+      return CartModel.fromJson(response.data['data']);
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
   }
 
   Future<void> clearCart() async {
-    await _apiService.clearCart();
+    try {
+      await _apiService.clearCart();
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  String _handleError(DioException e) {
+    if (e.response?.data != null && e.response?.data is Map) {
+      final data = e.response!.data as Map;
+      if (data.containsKey('message')) {
+        return data['message'];
+      }
+    }
+    return e.message ?? 'An unknown error occurred';
   }
 }
 
@@ -41,7 +73,12 @@ final cartServiceProvider = Provider<CartService>((ref) {
 class CartNotifier extends AsyncNotifier<CartModel> {
   @override
   Future<CartModel> build() async {
-    return ref.read(cartServiceProvider).getCart();
+    final authState = ref.watch(authServiceProvider);
+    if (authState.status == AuthStatus.authenticated) {
+      return ref.read(cartServiceProvider).getCart();
+    }
+    // Return empty cart if not authenticated
+    return CartModel(id: 0, items: [], total: 0.0);
   }
 
   Future<void> addItem(int productId, {int quantity = 1}) async {

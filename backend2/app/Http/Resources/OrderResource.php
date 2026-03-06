@@ -19,6 +19,7 @@ class OrderResource extends JsonResource
             'total_amount' => (float) $this->total_amount,
             'status' => $this->status,
             'items' => OrderItemResource::collection($this->whenLoaded('items')),
+            'payment' => new PaymentResource($this->whenLoaded('payment')),
             'created_at' => $this->created_at?->toDateTimeString(),
         ];
     }

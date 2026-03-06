@@ -6,6 +6,7 @@ use App\ApiResponse;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\OrderResource;
 use App\Services\OrderService;
+use App\Models\Payment;
 use Exception;
 use Illuminate\Http\Request;
 use Stripe\Stripe;
@@ -52,6 +53,16 @@ class OrderController extends Controller
                     'enabled' => true,
                 ],
             ]);
+
+            Payment::create([
+                'order_id'       => $order->id,
+                'transaction_id' => $paymentIntent->id,
+                'payment_method' => 'stripe',
+                'amount'         => $order->total_amount,
+                'status'         => 'pending',
+            ]);
+
+            $order->load(['items.product', 'payment']);
 
             return $this->created([
                 'order'         => new OrderResource($order),

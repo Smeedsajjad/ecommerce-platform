@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Order;
+use App\Models\Payment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Stripe\Webhook;
@@ -57,6 +58,7 @@ class StripeWebhookController extends Controller
     protected function handlePaymentSucceeded($paymentIntent)
     {
         $orderId = $paymentIntent->metadata->order_id ?? null;
+        $paymentIntentId = $paymentIntent->id;
 
         if ($orderId) {
             $order = Order::find($orderId);
@@ -64,18 +66,29 @@ class StripeWebhookController extends Controller
                 $order->update(['status' => 'paid']);
                 Log::info("Order #{$orderId} marked as PAID via Webhook.");
             }
+
+            $payment = Payment::where('transaction_id', $paymentIntentId)->first();
+            if ($payment) {
+                $payment->update(['status' => 'completed']);
+            }
         }
     }
 
     protected function handlePaymentFailed($paymentIntent)
     {
         $orderId = $paymentIntent->metadata->order_id ?? null;
+        $paymentIntentId = $paymentIntent->id;
 
         if ($orderId) {
             $order = Order::find($orderId);
             if ($order) {
                 $order->update(['status' => 'failed']);
                 Log::warning("Order #{$orderId} marked as FAILED via Webhook.");
+            }
+
+            $payment = Payment::where('transaction_id', $paymentIntentId)->first();
+            if ($payment) {
+                $payment->update(['status' => 'failed']);
             }
         }
     }
