@@ -149,7 +149,7 @@ return [
         'iss',
         'iat',
         'exp',
-        'nbf',
+        // 'nbf',
         'sub',
         'jti',
     ],
