@@ -19,7 +19,8 @@ class Category extends Model implements HasMedia
         'is_active',
     ];
 
-    protected $appends = ['image_url'];
+    protected $appends = ['image_url', 'gallery'];
+
 
     protected $hidden = ['media'];
 

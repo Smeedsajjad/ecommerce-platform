@@ -17,7 +17,7 @@ class ProductController extends Controller
             'items.configurations.variationOption.variation.category'
         ])->latest()->paginate(20);
 
-        return ProductResource::collection($products);
+        return $this->success(ProductResource::collection($products));
     }
 
     public function show($id)

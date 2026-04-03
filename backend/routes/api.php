@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\ForgotPasswordController;
 use App\Http\Controllers\Api\GoogleAuthController;
 use App\Http\Controllers\Api\ProductController;
+use App\Http\Controllers\CartController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix("auth")->group(function () {
@@ -24,6 +25,13 @@ Route::prefix("auth")->group(function () {
         Route::post('logout', [AuthController::class, 'logout']);
         Route::post('refresh', [AuthController::class, 'refresh']);
     });
+});
+
+Route::middleware('auth:api')->group(function () {
+    Route::get('cart', [CartController::class, 'index']);
+    Route::post('cart/items', [CartController::class, 'store']);
+    Route::patch('cart/items/{cartItem}', [CartController::class, 'update']);
+    Route::delete('cart/items/{cartItem}', [CartController::class, 'destroy']);
 });
 
 Route::get('categories', [CategoryController::class, 'index']);

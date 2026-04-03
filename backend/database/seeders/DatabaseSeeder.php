@@ -16,6 +16,8 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        
+        $this->command->alert("Start Seeding Users!");
 
         User::factory()->create([
             'name' => "Admin",
@@ -27,7 +29,7 @@ class DatabaseSeeder extends Seeder
         User::factory(10)->create();
         $this->command->info("Users Seed Successfully!");
 
-
+        $this->command->alert("Start Seeding Variations, Products, and Items!");
         // Create Categories
         $categories = [
             'Accessories',
@@ -111,6 +113,25 @@ class DatabaseSeeder extends Seeder
         }
 
         $this->command->info("Categories, Variations, Products, and Items Seeded Successfully!");
+        $this->command->alert("Start Seeding Carts and Cart Items!");
 
+        $users = User::all();
+        $productItems = \App\Models\ProductItem::all();
+
+        foreach ($users as $user) {
+            $cart = \App\Models\Cart::factory()->create([
+                'user_id' => $user->id
+            ]);
+
+            // Add 1-5 random items to each cart
+            \App\Models\CartItem::factory(rand(1, 5))->create([
+                'cart_id' => $cart->id,
+                'product_item_id' => function () use ($productItems) {
+                    return $productItems->random()->id;
+                }
+            ]);
+        }
+
+        $this->command->info("Carts and Cart Items Seeded Successfully for all users!");
     }
 }
